@@ -1,0 +1,27 @@
+{
+  "cSpell.words": [
+    "adduser",
+    "ADMINPASSWORD",
+    "ADMINUSERNAME",
+    "BASICAUTH",
+    "bson",
+    "BUILDKIT",
+    "buildx",
+    "configdb",
+    "dotenv",
+    "gotestsum",
+    "healthcheck",
+    "healthz",
+    "INITDB",
+    "ldflags",
+    "modcache",
+    "netcat",
+    "nosniff",
+    "qodo",
+    "readpref",
+    "stretchr",
+    "tmpl",
+    "zerolog"
+  ],
+  "evenBetterToml.schema.enabled": false, // disabling for .air.toml file
+}

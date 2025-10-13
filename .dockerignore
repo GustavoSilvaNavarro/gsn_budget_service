@@ -1,0 +1,17 @@
+.github/
+.deploy/
+.dockerignore
+.gitignore
+Makefile
+*.txt
+*.MD
+vscode/
+.env
+.configs/
+.husky/
+.tool-versions
+pull_request_template.md
+README.md
+docker-compose.inf.yml
+docker-compose.yaml
+tools.go

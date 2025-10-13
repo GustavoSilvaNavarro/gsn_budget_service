@@ -1,0 +1,9 @@
+# Custom folders
+.qodo/
+
+# Environmental Variables
+.env
+
+# misc
+.DS_Store
+/tmp
