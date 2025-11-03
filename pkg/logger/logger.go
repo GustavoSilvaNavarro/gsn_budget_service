@@ -52,6 +52,6 @@ func InitLogger() {
 			Str("go_version", buildInfo.GoVersion).
 			Logger()
 
-		log.Error().Msg("🪵 Logger initialized!")
+		log.Info().Msg("🪵 Logger initialized!")
 	})
 }
