@@ -21,7 +21,7 @@ func InitLogger() {
 		zerolog.TimeFieldFormat = time.RFC3339
 
 		logLevel := strings.ToLower(config.Cfg.LOG_LEVEL)
-		envLevel := strings.ToLower(config.Cfg.ENVIRONMENT)
+		env := strings.ToLower(config.Cfg.ENVIRONMENT)
 
 		level, err := zerolog.ParseLevel(logLevel)
 		if err != nil {
@@ -32,7 +32,7 @@ func InitLogger() {
 		output := os.Stdout
 		writer := zerolog.New(output)
 
-		if envLevel != "stg" && envLevel != "prd" && envLevel != "dev" {
+		if env != "stg" && env != "prd" && env != "dev" {
 			writer = zerolog.New(zerolog.ConsoleWriter{
 				Out:        output,
 				TimeFormat: time.RFC3339,
@@ -45,7 +45,7 @@ func InitLogger() {
 		log.Logger = writer.With().
 			Timestamp().
 			Caller(). // Caller (file and line number) to every log event
-			Str("env", envLevel).
+			Str("env", env).
 			Str("service", config.Cfg.NAME).
 			Int("pid", os.Getpid()).
 			Str("lang", "Golang").

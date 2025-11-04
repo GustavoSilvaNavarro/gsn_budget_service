@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	config.LoadingConfig()
+	config.LoadConfig()
 	logger.InitLogger()
 
 	log.Info().Msg("Dude")
