@@ -4,6 +4,7 @@ go 1.25.3
 
 require (
 	github.com/air-verse/air v1.63.0
+	github.com/go-chi/chi/v5 v5.2.3
 	github.com/rs/zerolog v1.34.0
 	github.com/spf13/viper v1.21.0
 	gotest.tools/gotestsum v1.13.0

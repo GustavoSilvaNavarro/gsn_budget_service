@@ -7,7 +7,7 @@ TICKET_PREFIX := $(shell git branch --show-current | cut -d '_' -f 1)
 
 # App Commands
 start:
-	go run ./src/main.go
+	go run ./cmd/main.go
 
 dev:
 	air
