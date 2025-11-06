@@ -24,7 +24,7 @@ clean-cache:
 
 # DB Commands
 run-external-services:
-	docker compose -f ./docker-compose.inf.yml up -d mongodb  mongo-express
+	@DOCKER_BUILDKIT=1 docker compose -f ./docker-compose.inf.yml up -d db
 
 # Docker commands
 .PHONY: build-base
@@ -38,4 +38,4 @@ up: build-base
 
 .PHONY: down-rm
 down-rm:
-	docker compose -f ./docker-compose.yaml -f ./docker-compose.inf.yml down --remove-orphans --rmi all --volumes
+	docker compose -f ./docker-compose.yml -f ./docker-compose.inf.yml down --remove-orphans --rmi all --volumes

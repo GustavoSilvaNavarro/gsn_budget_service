@@ -18,6 +18,7 @@
     "healthz",
     "INITDB",
     "isatty",
+    "isready",
     "ldflags",
     "locafero",
     "mapstructure",
