@@ -1,6 +1,6 @@
 module github.com/gsn_budget_service
 
-go 1.25.3
+go 1.25.4
 
 require (
 	github.com/air-verse/air v1.63.0
