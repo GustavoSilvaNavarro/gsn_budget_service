@@ -2,10 +2,12 @@
 .deploy/
 .dockerignore
 .gitignore
+.qodo/
 Makefile
 *.txt
 *.MD
 vscode/
+.vscode/
 .env
 .configs/
 .husky/
@@ -13,5 +15,5 @@ vscode/
 pull_request_template.md
 README.md
 docker-compose.inf.yml
-docker-compose.yaml
+docker-compose.yml
 tools.go
