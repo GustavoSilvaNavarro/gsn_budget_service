@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -26,17 +25,18 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	// TODO: thinking about what to do if I have multiple resources like redis
+	// for now I only have the db so its ok
+	dbConnection, err := db.StartDbConnection(ctx, config.Cfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("☠️  DB connection failed...")
+	}
+	defer dbConnection.Close()
+
 	srv := server.StartServer(config.Cfg)
 	srvErr := make(chan error, 1)
 
 	go func() {
-		dbConnection, err := db.StartDbConnection(ctx, config.Cfg)
-		if err != nil {
-			srvErr <- fmt.Errorf("☠️  DB connection failed... | Error: %w", err)
-			return
-		}
-		defer dbConnection.Close()
-
 		log.Info().Msgf(
 			"🚀 %s API service is running, listening on PORT: %d", strings.ToUpper(config.Cfg.NAME), config.Cfg.PORT,
 		)
