@@ -23,6 +23,17 @@ unit-pretty:
 clean-cache:
 	go clean -modcache
 
+# Format code
+format:
+	@echo "Formatting code..."
+	go fmt ./...
+	@echo "✅ Code formatted!"
+
+lint:
+	@echo "Running linter..."
+	golangci-lint run
+	@echo "✅ Linting completed!"
+
 # Migration Commands
 # note: need to install golang-migrate
 create-migration:
