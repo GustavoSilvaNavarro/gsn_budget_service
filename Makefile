@@ -49,6 +49,10 @@ migrate-down:
 	@echo "Downgrading database migration at: $${DB_URL:-$(DEFAULT_DB_URL)}"
 	migrate -path ./migrations -database "$${DB_URL:-$(DEFAULT_DB_URL)}" down
 
+create-queries:
+	@echo "Creating types for my sql queries..."
+	sqlc generate
+
 # DB Commands
 run-external-services:
 	@DOCKER_BUILDKIT=1 docker compose -f ./docker-compose.inf.yml up -d db

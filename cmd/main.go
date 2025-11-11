@@ -33,6 +33,8 @@ func main() {
 	}
 	defer dbConnection.Close()
 
+	// queries := db.New(dbConnection.GetPool()) // TODO: figure it out what to do with damn queries
+
 	srv := server.StartServer(config.Cfg)
 	srvErr := make(chan error, 1)
 

@@ -53,7 +53,7 @@ func LoadConfig() *Config {
 		viper.SetDefault("ENVIRONMENT", env)
 		viper.SetDefault("LOG_LEVEL", "DEBUG")
 		viper.SetDefault("PORT", 8080)
-		viper.SetDefault("URL_PREFIX", "budget_api")
+		viper.SetDefault("URL_PREFIX", "budget-api")
 
 		// ENTRYPOINTS
 		viper.SetDefault("API_URL", "http://localhost:8080")
