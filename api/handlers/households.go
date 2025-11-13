@@ -7,6 +7,7 @@ import (
 	"github.com/gsn_budget_service/internal"
 	"github.com/gsn_budget_service/internal/db"
 	"github.com/gsn_budget_service/pkg/types"
+	"github.com/gsn_budget_service/pkg/utils"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/rs/zerolog/log"
 )
@@ -26,38 +27,31 @@ func NewHouseholdHandler(conns *internal.AppConnections) *HouseholdHandler {
 func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 
-	// Only allow POST method
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Method not allowed"})
-		return
-	}
-
-	// Parse request body
-	var req types.CreateHouseholdRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Error().Err(err).Msg("Failed to decode request body payload...")
+	var payload types.CreateHouseholdRequest
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		log.Error().Err(err).Msg("Failed to decode payload...")
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
 		return
 	}
 
-	// Validate required fields
-	if req.Name == "" {
+	// Validate request using struct tags
+	if err := utils.Validate.Struct(&payload); err != nil {
+		log.Error().Err(err).Msg("Validation failed")
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Name is required"})
+		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 		return
 	}
 
 	// Prepare address (convert *string to pgtype.Text)
 	var address pgtype.Text
-	if req.Address != nil {
-		address = pgtype.Text{String: *req.Address, Valid: true}
+	if payload.Address != nil {
+		address = pgtype.Text{String: *payload.Address, Valid: true}
 	}
 
 	// Create household in database
 	household, err := householdController.appConns.Queries.CreateHousehold(r.Context(), db.CreateHouseholdParams{
-		Name:    req.Name,
+		Name:    payload.Name,
 		Address: address,
 	})
 
