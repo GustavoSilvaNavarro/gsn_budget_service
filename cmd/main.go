@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/gsn_budget_service/api/server"
+	"github.com/gsn_budget_service/internal"
 	"github.com/gsn_budget_service/internal/config"
-	"github.com/gsn_budget_service/internal/db"
 	"github.com/gsn_budget_service/pkg/logger"
 	"github.com/rs/zerolog/log"
 )
@@ -25,17 +25,14 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
-	// TODO: thinking about what to do if I have multiple resources like redis
-	// for now I only have the db so its ok
-	dbConnection, err := db.StartDbConnection(ctx, config.Cfg)
+	// Initialize application with all dependencies (DB, queries, etc.)
+	appConns, err := internal.New(ctx, config.Cfg)
 	if err != nil {
-		log.Fatal().Err(err).Msg("☠️  DB connection failed...")
+		log.Fatal().Err(err).Msg("☠️  Failed to initialize application...")
 	}
-	defer dbConnection.Close()
+	defer appConns.CloseAppConnections()
 
-	// queries := db.New(dbConnection.GetPool()) // TODO: figure it out what to do with damn queries
-
-	srv := server.StartServer(config.Cfg)
+	srv := server.StartServer(appConns)
 	srvErr := make(chan error, 1)
 
 	go func() {
