@@ -25,26 +25,23 @@ func NewHouseholdHandler(conns *internal.AppConnections) *HouseholdHandler {
 }
 
 func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-
 	var payload types.CreateHouseholdRequest
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		log.Error().Err(err).Msg("Failed to decode payload...")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Invalid payload received, check payload schema.", nil)
 		return
 	}
 
 	// Validate request using struct tags
 	if err := utils.Validate.Struct(&payload); err != nil {
-		log.Error().Err(err).Msg("Validation failed")
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+		log.Error().Err(err).Msg("😩 Payload validation failed...")
+		errMsg := err.Error()
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Error validating payload, check payload schema.", &errMsg)
 		return
 	}
 
-	// Prepare address (convert *string to pgtype.Text)
-	var address pgtype.Text
+	// Convert optional *string to pgtype.Text (required for nullable database column)
+	address := pgtype.Text{Valid: false} // Default to NULL
 	if payload.Address != nil {
 		address = pgtype.Text{String: *payload.Address, Valid: true}
 	}
@@ -57,14 +54,10 @@ func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseW
 
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create household")
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to create household"})
+		utils.SendErrorResponse(w, http.StatusInternalServerError, "Failed to create new household in db", nil)
 		return
 	}
 
 	// Return success response with created household
-	w.WriteHeader(http.StatusCreated)
-	if err := json.NewEncoder(w).Encode(household); err != nil {
-		log.Error().Err(err).Msg("Failed to encode response")
-	}
+	utils.SendJsonResponse(w, http.StatusCreated, household)
 }
