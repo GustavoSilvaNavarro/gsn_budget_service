@@ -26,7 +26,10 @@ func NewHouseholdHandler(conns *internal.AppConnections) *HouseholdHandler {
 
 func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseWriter, r *http.Request) {
 	var payload types.CreateHouseholdRequest
-	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&payload); err != nil {
 		log.Error().Err(err).Msg("Failed to decode payload...")
 		utils.SendErrorResponse(w, http.StatusBadRequest, "Invalid payload received, check payload schema.", nil)
 		return
