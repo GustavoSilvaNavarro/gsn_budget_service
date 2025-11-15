@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/gsn_budget_service/api/server"
+	"github.com/gsn_budget_service/internal"
 	"github.com/gsn_budget_service/internal/config"
 	"github.com/gsn_budget_service/pkg/logger"
 	"github.com/rs/zerolog/log"
@@ -20,7 +21,18 @@ func main() {
 	config.LoadConfig()
 	logger.InitLogger()
 
-	srv := server.StartServer(config.Cfg)
+	// Global ctx
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	// Initialize application with all dependencies (DB, queries, etc.)
+	appConns, err := internal.New(ctx, config.Cfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("☠️  Failed to initialize application...")
+	}
+	defer appConns.CloseAppConnections()
+
+	srv := server.StartServer(appConns)
 	srvErr := make(chan error, 1)
 
 	go func() {
@@ -41,6 +53,7 @@ func main() {
 		log.Fatal().Err(err).Msg("💥 Server crashed")
 	case sig := <-quit:
 		log.Warn().Msgf("🧹 Caught signal: %s — shutting down gracefully...", sig.String())
+		cancel()
 
 		shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer shutdownCancel()

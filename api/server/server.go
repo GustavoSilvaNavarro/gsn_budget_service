@@ -8,10 +8,10 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/gsn_budget_service/api/routes"
-	"github.com/gsn_budget_service/internal/config"
+	"github.com/gsn_budget_service/internal"
 )
 
-func StartServer(cfg *config.Config) *http.Server {
+func StartServer(appConnections *internal.AppConnections) *http.Server {
 	router := chi.NewRouter()
 
 	// Middlewares
@@ -21,10 +21,10 @@ func StartServer(cfg *config.Config) *http.Server {
 	router.Use(middleware.RealIP)
 
 	// Routes
-	routes.SetupRoutes(router)
+	routes.SetupRoutes(router, appConnections)
 
 	server := http.Server{
-		Addr:         fmt.Sprintf(":%d", cfg.PORT),
+		Addr:         fmt.Sprintf(":%d", appConnections.Config.PORT),
 		Handler:      router,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,

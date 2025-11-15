@@ -1,7 +1,16 @@
 package routes
 
-import "github.com/go-chi/chi/v5"
+import (
+	"fmt"
 
-func SetupRoutes(router *chi.Mux) {
+	"github.com/go-chi/chi/v5"
+	"github.com/gsn_budget_service/internal"
+)
+
+func SetupRoutes(router *chi.Mux, appConns *internal.AppConnections) {
 	router.Get("/healthz", Healthz)
+
+	router.Route(fmt.Sprintf("/%s", appConns.Config.URL_PREFIX), func(r chi.Router) {
+		r.Mount("/households", HouseholdRoutes(appConns))
+	})
 }

@@ -1,0 +1,66 @@
+package handlers
+
+import (
+	"encoding/json"
+	"net/http"
+
+	"github.com/gsn_budget_service/internal"
+	"github.com/gsn_budget_service/internal/db"
+	"github.com/gsn_budget_service/pkg/types"
+	"github.com/gsn_budget_service/pkg/utils"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/rs/zerolog/log"
+)
+
+// holds dependencies for household operations
+type HouseholdHandler struct {
+	appConns *internal.AppConnections
+}
+
+// appConns contains all dependencies (queries, db, config, etc.)
+func NewHouseholdHandler(conns *internal.AppConnections) *HouseholdHandler {
+	return &HouseholdHandler{
+		appConns: conns,
+	}
+}
+
+func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseWriter, r *http.Request) {
+	var payload types.CreateHouseholdRequest
+
+	decoder := json.NewDecoder(r.Body)
+	decoder.DisallowUnknownFields()
+	if err := decoder.Decode(&payload); err != nil {
+		log.Error().Err(err).Msg("Failed to decode payload...")
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Invalid payload received, check payload schema.", nil)
+		return
+	}
+
+	// Validate request using struct tags
+	if err := utils.Validate.Struct(&payload); err != nil {
+		log.Error().Err(err).Msg("😩 Payload validation failed...")
+		errMsg := err.Error()
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Error validating payload, check payload schema.", &errMsg)
+		return
+	}
+
+	// Convert optional *string to pgtype.Text (required for nullable database column)
+	address := pgtype.Text{Valid: false} // Default to NULL
+	if payload.Address != nil {
+		address = pgtype.Text{String: *payload.Address, Valid: true}
+	}
+
+	// Create household in database
+	household, err := householdController.appConns.Queries.CreateHousehold(r.Context(), db.CreateHouseholdParams{
+		Name:    payload.Name,
+		Address: address,
+	})
+
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to create household")
+		utils.SendErrorResponse(w, http.StatusInternalServerError, "Failed to create new household in db", nil)
+		return
+	}
+
+	// Return success response with created household
+	utils.SendJsonResponse(w, http.StatusCreated, household)
+}
