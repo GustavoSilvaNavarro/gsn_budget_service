@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CreateHousehold(ctx context.Context, arg CreateHouseholdParams) (Household, error)
+	CreateNewBooking(ctx context.Context, arg CreateNewBookingParams) (Booking, error)
 	CreateNewUser(ctx context.Context, arg CreateNewUserParams) (User, error)
 	GetHouseholdByID(ctx context.Context, id int32) (Household, error)
 	GetHouseholdByName(ctx context.Context, name string) (Household, error)

@@ -13,6 +13,7 @@ func HouseholdRoutes(appConns *internal.AppConnections) chi.Router {
 	householdHandler := handlers.NewHouseholdHandler(appConns)
 
 	r.Post("/new", householdHandler.CreateNewHousehold)
+	r.Get("/{householdId}", householdHandler.GetHousehold)
 
 	return r
 }

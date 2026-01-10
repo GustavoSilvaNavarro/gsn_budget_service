@@ -3,7 +3,9 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gsn_budget_service/internal"
 	"github.com/gsn_budget_service/internal/db/models"
 	"github.com/gsn_budget_service/pkg/types"
@@ -50,7 +52,7 @@ func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseW
 	}
 
 	// Create household in database
-	household, err := householdController.appConns.DbQueries.CreateHousehold(r.Context(), models.CreateHouseholdParams{
+	newHousehold, err := householdController.appConns.DbQueries.CreateHousehold(r.Context(), models.CreateHouseholdParams{
 		Name:    payload.Name,
 		Address: address,
 	})
@@ -58,6 +60,29 @@ func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseW
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to create household")
 		utils.SendErrorResponse(w, http.StatusInternalServerError, "Failed to create new household in db", nil)
+		return
+	}
+
+	// Return success response with created household
+	utils.SendJsonResponse(w, http.StatusCreated, newHousehold)
+}
+
+func (householdController *HouseholdHandler) GetHousehold(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "householdId")
+
+	// 2. Convert string to integer
+	householdId, err := strconv.Atoi(idStr)
+	if err != nil {
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Invalid household ID", nil)
+		return
+	}
+
+	id := int32(householdId)
+	household, err := householdController.appConns.DbQueries.GetHouseholdByID(r.Context(), id)
+
+	if err != nil {
+		log.Error().Err(err).Msgf("Failed to retrieve household with ID: %d", id)
+		utils.SendErrorResponse(w, http.StatusInternalServerError, "Failed to retrieve household from db", nil)
 		return
 	}
 
