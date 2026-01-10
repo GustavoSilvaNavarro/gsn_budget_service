@@ -5,8 +5,8 @@ sql:
     schema: "migrations"
     gen:
       go:
-        package: "db"
-        out: "internal/db"
+        package: "models"
+        out: "internal/db/models"
         emit_json_tags: true
         emit_interface: true
         emit_empty_slices: true

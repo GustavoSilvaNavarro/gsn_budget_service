@@ -3,7 +3,7 @@
 //   sqlc v1.30.0
 // source: households.sql
 
-package db
+package models
 
 import (
 	"context"

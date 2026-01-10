@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gsn_budget_service/internal"
-	"github.com/gsn_budget_service/internal/db"
+	"github.com/gsn_budget_service/internal/db/models"
 	"github.com/gsn_budget_service/pkg/types"
 	"github.com/gsn_budget_service/pkg/utils"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -50,7 +50,7 @@ func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseW
 	}
 
 	// Create household in database
-	household, err := householdController.appConns.Queries.CreateHousehold(r.Context(), db.CreateHouseholdParams{
+	household, err := householdController.appConns.DbQueries.CreateHousehold(r.Context(), models.CreateHouseholdParams{
 		Name:    payload.Name,
 		Address: address,
 	})

@@ -5,14 +5,15 @@ import (
 
 	"github.com/gsn_budget_service/internal/config"
 	"github.com/gsn_budget_service/internal/db"
+	"github.com/gsn_budget_service/internal/db/models"
 )
 
 // App holds all application dependencies and services
 // This can be shared between API handlers, background tasks, cronjobs, etc.
 type AppConnections struct {
 	Config              *config.Config
-	DB                  *db.Db
-	Queries             *db.Queries
+	DbConnection        *db.Db
+	DbQueries           *models.Queries
 	ConnectionsShutdown func() error
 }
 
@@ -25,12 +26,12 @@ func New(ctx context.Context, cfg *config.Config) (*AppConnections, error) {
 	}
 
 	// Create queries from database pool
-	queries := db.New(dbConnection.GetPool())
+	poolConnection := models.New(dbConnection.GetPool())
 
 	app := &AppConnections{
-		Config:  cfg,
-		DB:      dbConnection,
-		Queries: queries,
+		Config:       cfg,
+		DbConnection: dbConnection,
+		DbQueries:    poolConnection,
 		ConnectionsShutdown: func() error {
 			dbConnection.Close()
 			return nil

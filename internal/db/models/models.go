@@ -2,19 +2,24 @@
 // versions:
 //   sqlc v1.30.0
 
-package db
+package models
 
 import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Budget struct {
-	ID          int32            `json:"id"`
-	Amount      pgtype.Numeric   `json:"amount"`
-	UserID      int32            `json:"user_id"`
-	Description string           `json:"description"`
-	CreatedAt   pgtype.Timestamp `json:"created_at"`
-	UpdatedAt   pgtype.Timestamp `json:"updated_at"`
+type Booking struct {
+	ID               int32            `json:"id"`
+	Amount           pgtype.Numeric   `json:"amount"`
+	UserID           int32            `json:"user_id"`
+	BookingPlatform  string           `json:"booking_platform"`
+	FreeCancelBefore pgtype.Timestamp `json:"free_cancel_before"`
+	BookingStart     pgtype.Timestamp `json:"booking_start"`
+	BookingEnd       pgtype.Timestamp `json:"booking_end"`
+	Description      string           `json:"description"`
+	CreatedAt        pgtype.Timestamp `json:"created_at"`
+	UpdatedAt        pgtype.Timestamp `json:"updated_at"`
+	DeletedAt        pgtype.Timestamp `json:"deleted_at"`
 }
 
 type Household struct {

@@ -2,7 +2,7 @@
 // versions:
 //   sqlc v1.30.0
 
-package db
+package models
 
 import (
 	"context"
@@ -10,6 +10,7 @@ import (
 
 type Querier interface {
 	CreateHousehold(ctx context.Context, arg CreateHouseholdParams) (Household, error)
+	CreateNewUser(ctx context.Context, arg CreateNewUserParams) (User, error)
 	GetHouseholdByID(ctx context.Context, id int32) (Household, error)
 	GetHouseholdByName(ctx context.Context, name string) (Household, error)
 }

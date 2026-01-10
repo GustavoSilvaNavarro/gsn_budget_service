@@ -59,6 +59,7 @@
     "pgservicefile",
     "pgtype",
     "pgxpool",
+    "plpgsql",
     "qodo",
     "readpref",
     "remyoudompheng",
