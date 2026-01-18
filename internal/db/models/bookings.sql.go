@@ -53,3 +53,43 @@ func (q *Queries) CreateNewBooking(ctx context.Context, arg CreateNewBookingPara
 	)
 	return i, err
 }
+
+const getBookingsByHouseholdID = `-- name: GetBookingsByHouseholdID :many
+SELECT b.id, b.amount, b.user_id, b.booking_platform, b.free_cancel_before, b.booking_start, b.booking_end, b.description, b.created_at, b.updated_at, b.deleted_at
+FROM bookings b
+JOIN users u ON b.user_id = u.id
+WHERE u.household_id = $1
+ORDER BY b.created_at DESC
+`
+
+func (q *Queries) GetBookingsByHouseholdID(ctx context.Context, householdID pgtype.Int4) ([]Booking, error) {
+	rows, err := q.db.Query(ctx, getBookingsByHouseholdID, householdID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Booking{}
+	for rows.Next() {
+		var i Booking
+		if err := rows.Scan(
+			&i.ID,
+			&i.Amount,
+			&i.UserID,
+			&i.BookingPlatform,
+			&i.FreeCancelBefore,
+			&i.BookingStart,
+			&i.BookingEnd,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

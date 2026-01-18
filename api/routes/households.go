@@ -12,8 +12,8 @@ func HouseholdRoutes(appConns *internal.AppConnections) chi.Router {
 	// Create handler instance with app (which contains queries and other dependencies)
 	householdHandler := handlers.NewHouseholdHandler(appConns)
 
-	r.Post("/new", householdHandler.CreateNewHousehold)
-	r.Get("/{householdId}", householdHandler.GetHousehold)
+	r.Post("/new-household", householdHandler.CreateNewHousehold)
+	r.Get("/household/{householdId}", householdHandler.GetHousehold)
 
 	return r
 }

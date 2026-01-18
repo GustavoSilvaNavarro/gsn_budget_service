@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(255) NOT NULL,
   lastname VARCHAR(255) NOT NULL,
   gender VARCHAR(1) NOT NULL CHECK (gender IN ('M', 'F')),
-  role VARCHAR(120) NOT NULL DEFAULT 'user' CHECK (role IN ('admin', 'user')),
+  role VARCHAR(120) NOT NULL DEFAULT 'user' CHECK (role IN ('ADMIN', 'USER')),
   household_id INTEGER REFERENCES households(id) ON DELETE CASCADE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

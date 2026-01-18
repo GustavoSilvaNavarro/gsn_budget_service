@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"strings"
 
 	"github.com/gsn_budget_service/internal"
 	"github.com/gsn_budget_service/internal/db/models"
@@ -34,6 +35,13 @@ func (userController *UseHandlers) NewUser(writer http.ResponseWriter, req *http
 		return
 	}
 
+	if err := utils.Validate.Struct(&payload); err != nil {
+		log.Error().Err(err).Msg("New user payload is invalid, check schema")
+		errMsg := err.Error()
+		utils.SendErrorResponse(writer, http.StatusBadRequest, "Validation failed", &errMsg)
+		return
+	}
+
 	if payload.Role == nil {
 		defaultRole := "user"
 		payload.Role = &defaultRole
@@ -43,8 +51,8 @@ func (userController *UseHandlers) NewUser(writer http.ResponseWriter, req *http
 		Email:       payload.Email,
 		Username:    payload.Username,
 		Lastname:    payload.Lastname,
-		Gender:      payload.Gender,
-		Role:        *payload.Role,
+		Gender:      strings.ToUpper(payload.Gender),
+		Role:        strings.ToUpper(*payload.Role),
 		HouseholdID: pgtype.Int4{Int32: payload.HouseholdId, Valid: true},
 	})
 

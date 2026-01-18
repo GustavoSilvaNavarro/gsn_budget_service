@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 
+	"github.com/go-chi/chi/v5"
 	"github.com/gsn_budget_service/internal"
 	"github.com/gsn_budget_service/internal/db/models"
 	"github.com/gsn_budget_service/pkg/types"
@@ -31,7 +33,14 @@ func (bookingHandler *BookingController) CreateBooking(w http.ResponseWriter, re
 	if err := decoder.Decode(&payload); err != nil {
 		log.Error().Err(err).Msg("Failed to parser booking payload")
 		errMsg := err.Error()
-		utils.SendErrorResponse(w, http.StatusBadRequest, "Error validating payload, please check payload schema.", &errMsg)
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Error parsing payload", &errMsg)
+		return
+	}
+
+	if err := utils.Validate.Struct(&payload); err != nil {
+		log.Error().Err(err).Msg("😩 Payload validation failed...")
+		errMsg := err.Error()
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Error validating payload, please check payload schema", &errMsg)
 		return
 	}
 
@@ -60,4 +69,35 @@ func (bookingHandler *BookingController) CreateBooking(w http.ResponseWriter, re
 	}
 
 	utils.SendJsonResponse(w, http.StatusCreated, newBooking)
+}
+
+func (bookingHandler *BookingController) GetListOfBookingsBasedOnHouseHoldId(w http.ResponseWriter, req *http.Request) {
+	householdId := chi.URLParam(req, "householdId")
+
+	intValue, err := strconv.ParseInt(householdId, 10, 32)
+	if err != nil {
+		log.Error().Err(err).Str("householdId", householdId).Msg("Fail to extract and parse householdId")
+		errMsg := err.Error()
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Household ID must be a valid integer", &errMsg)
+		return
+	}
+
+	// Only need to check if positive (ParseInt already validated range)
+	if intValue <= 0 {
+		log.Error().Str("householdId", householdId).Msg("Household ID must be positive")
+		utils.SendErrorResponse(w, http.StatusBadRequest, "Household ID must be positive", nil)
+		return
+	}
+
+	id := pgtype.Int4{Int32: int32(intValue), Valid: true}
+	bookingList, err := bookingHandler.AppConns.DbQueries.GetBookingsByHouseholdID(req.Context(), id)
+
+	if err != nil {
+		log.Error().Err(err).Str("householdId", householdId).Msg("Failed to retrieve list of books")
+		errMsg := err.Error()
+		utils.SendErrorResponse(w, http.StatusInternalServerError, "Failed to retrieve list of books", &errMsg)
+		return
+	}
+
+	utils.SendJsonResponse(w, http.StatusOK, bookingList)
 }

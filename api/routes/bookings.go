@@ -12,7 +12,8 @@ func BookingRoutes(appConns *internal.AppConnections) chi.Router {
 	// Create handler instance with app (which contains queries and other dependencies)
 	bookingController := handlers.NewBookingController(appConns)
 
-	r.Post("/new", bookingController.CreateBooking)
+	r.Post("/new-booking", bookingController.CreateBooking)
+	r.Get("/book/{householdId}", bookingController.GetListOfBookingsBasedOnHouseHoldId)
 
 	return r
 }
