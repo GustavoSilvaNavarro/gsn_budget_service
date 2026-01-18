@@ -12,10 +12,9 @@ import (
 
 // Service wraps the database connection pool and generated queries
 type Db struct {
-	pool *pgxpool.Pool
+	poolConn *pgxpool.Pool
 }
 
-// NewFromURL creates a new database service from a connection URL
 func StartDbConnection(ctx context.Context, cfg *config.Config) (*Db, error) {
 	config, err := pgxpool.ParseConfig(cfg.DB_URL)
 	if err != nil {
@@ -45,26 +44,26 @@ func StartDbConnection(ctx context.Context, cfg *config.Config) (*Db, error) {
 	}
 
 	log.Info().Msg("📻 PGX - Connection to DB has been established successfully...")
-	return &Db{pool: pool}, nil
+	return &Db{poolConn: pool}, nil
 }
 
 // Close closes the database connection pool
 func (db *Db) Close() {
 	log.Warn().Msg("Closing DB connection...")
-	db.pool.Close()
+	db.poolConn.Close()
 }
 
 // Health checks if the database is healthy
 func (db *Db) Health(ctx context.Context) error {
-	return db.pool.Ping(ctx)
+	return db.poolConn.Ping(ctx)
 }
 
 // GetPool returns the underlying connection pool (useful for advanced usage)
 func (db *Db) GetPool() *pgxpool.Pool {
-	return db.pool
+	return db.poolConn
 }
 
 // Stats returns pool statistics
 func (db *Db) Stats() *pgxpool.Stat {
-	return db.pool.Stat()
+	return db.poolConn.Stat()
 }
