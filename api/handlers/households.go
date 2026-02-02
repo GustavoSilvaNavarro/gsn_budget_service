@@ -70,7 +70,7 @@ func (householdController *HouseholdHandler) CreateNewHousehold(w http.ResponseW
 func (householdController *HouseholdHandler) GetHousehold(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "householdId")
 
-	// 2. Convert string to integer
+	// Convert string to integer
 	householdId, err := strconv.Atoi(idStr)
 	if err != nil {
 		utils.SendErrorResponse(w, http.StatusBadRequest, "Invalid household ID", nil)

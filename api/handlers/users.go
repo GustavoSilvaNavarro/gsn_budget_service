@@ -47,6 +47,14 @@ func (userController *UseHandlers) NewUser(writer http.ResponseWriter, req *http
 		payload.Role = &defaultRole
 	}
 
+	_, err := userController.AppConns.DbQueries.GetHouseholdByID(req.Context(), payload.HouseholdId)
+	if err != nil {
+		log.Error().Err(err).Msgf("Household does not exist, for the following ID => %d", payload.HouseholdId)
+		errMsg := err.Error()
+		utils.SendErrorResponse(writer, http.StatusBadRequest, "Household does not exist", &errMsg)
+		return
+	}
+
 	newUser, err := userController.AppConns.DbQueries.CreateNewUser(req.Context(), models.CreateNewUserParams{
 		Email:       payload.Email,
 		Username:    payload.Username,
