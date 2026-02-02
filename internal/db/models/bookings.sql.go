@@ -54,6 +54,30 @@ func (q *Queries) CreateNewBooking(ctx context.Context, arg CreateNewBookingPara
 	return i, err
 }
 
+const getBookingByID = `-- name: GetBookingByID :one
+SELECT id, amount, user_id, booking_platform, free_cancel_before, booking_start, booking_end, description, created_at, updated_at, deleted_at FROM bookings
+WHERE id = $1
+`
+
+func (q *Queries) GetBookingByID(ctx context.Context, id int32) (Booking, error) {
+	row := q.db.QueryRow(ctx, getBookingByID, id)
+	var i Booking
+	err := row.Scan(
+		&i.ID,
+		&i.Amount,
+		&i.UserID,
+		&i.BookingPlatform,
+		&i.FreeCancelBefore,
+		&i.BookingStart,
+		&i.BookingEnd,
+		&i.Description,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.DeletedAt,
+	)
+	return i, err
+}
+
 const getBookingsByHouseholdID = `-- name: GetBookingsByHouseholdID :many
 SELECT b.id, b.amount, b.user_id, b.booking_platform, b.free_cancel_before, b.booking_start, b.booking_end, b.description, b.created_at, b.updated_at, b.deleted_at
 FROM bookings b
@@ -64,6 +88,44 @@ ORDER BY b.created_at DESC
 
 func (q *Queries) GetBookingsByHouseholdID(ctx context.Context, householdID pgtype.Int4) ([]Booking, error) {
 	rows, err := q.db.Query(ctx, getBookingsByHouseholdID, householdID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Booking{}
+	for rows.Next() {
+		var i Booking
+		if err := rows.Scan(
+			&i.ID,
+			&i.Amount,
+			&i.UserID,
+			&i.BookingPlatform,
+			&i.FreeCancelBefore,
+			&i.BookingStart,
+			&i.BookingEnd,
+			&i.Description,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.DeletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getBookingsByUserID = `-- name: GetBookingsByUserID :many
+SELECT id, amount, user_id, booking_platform, free_cancel_before, booking_start, booking_end, description, created_at, updated_at, deleted_at FROM bookings
+WHERE user_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetBookingsByUserID(ctx context.Context, userID int32) ([]Booking, error) {
+	rows, err := q.db.Query(ctx, getBookingsByUserID, userID)
 	if err != nil {
 		return nil, err
 	}

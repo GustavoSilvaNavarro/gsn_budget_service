@@ -9,3 +9,12 @@ FROM bookings b
 JOIN users u ON b.user_id = u.id
 WHERE u.household_id = $1
 ORDER BY b.created_at DESC;
+
+-- name: GetBookingByID :one
+SELECT * FROM bookings
+WHERE id = $1;
+
+-- name: GetBookingsByUserID :many
+SELECT * FROM bookings
+WHERE user_id = $1
+ORDER BY created_at DESC;

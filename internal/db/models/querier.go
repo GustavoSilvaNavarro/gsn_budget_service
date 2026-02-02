@@ -14,9 +14,13 @@ type Querier interface {
 	CreateHousehold(ctx context.Context, arg CreateHouseholdParams) (Household, error)
 	CreateNewBooking(ctx context.Context, arg CreateNewBookingParams) (Booking, error)
 	CreateNewUser(ctx context.Context, arg CreateNewUserParams) (User, error)
+	GetBookingByID(ctx context.Context, id int32) (Booking, error)
 	GetBookingsByHouseholdID(ctx context.Context, householdID pgtype.Int4) ([]Booking, error)
+	GetBookingsByUserID(ctx context.Context, userID int32) ([]Booking, error)
 	GetHouseholdByID(ctx context.Context, id int32) (Household, error)
 	GetHouseholdByName(ctx context.Context, name string) (Household, error)
+	GetUserByID(ctx context.Context, id int32) (User, error)
+	GetUsersByHouseholdID(ctx context.Context, householdID pgtype.Int4) ([]User, error)
 }
 
 var _ Querier = (*Queries)(nil)

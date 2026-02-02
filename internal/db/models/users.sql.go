@@ -49,3 +49,61 @@ func (q *Queries) CreateNewUser(ctx context.Context, arg CreateNewUserParams) (U
 	)
 	return i, err
 }
+
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, email, username, lastname, gender, role, household_id, created_at, updated_at FROM users
+WHERE id = $1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, id int32) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, id)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Email,
+		&i.Username,
+		&i.Lastname,
+		&i.Gender,
+		&i.Role,
+		&i.HouseholdID,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
+const getUsersByHouseholdID = `-- name: GetUsersByHouseholdID :many
+SELECT id, email, username, lastname, gender, role, household_id, created_at, updated_at FROM users
+WHERE household_id = $1
+ORDER BY created_at DESC
+`
+
+func (q *Queries) GetUsersByHouseholdID(ctx context.Context, householdID pgtype.Int4) ([]User, error) {
+	rows, err := q.db.Query(ctx, getUsersByHouseholdID, householdID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Email,
+			&i.Username,
+			&i.Lastname,
+			&i.Gender,
+			&i.Role,
+			&i.HouseholdID,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
